@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Calculator</title>
+    <title>Jacked Calculator</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
         input, button { margin: 5px; padding: 10px; font-size: 1rem; }
@@ -11,40 +11,55 @@
 </head>
 <body>
     <h1>Jacked Calculator</h1>
-    <input type="number" id="Wc" placeholder="Enter current weight">
-    <input type="number" id="BFc" placeholder="Enter current body fat"><br>
-    <input type="number" id="Wg" placeholder="Enter goal weight">
-    <input type="number" id="BFg" placeholder="Enter goal body fat"><br>
+    <input type="number" id="weight_current" placeholder="Enter current weight">
+    <input type="number" id="BF_current" placeholder="Enter current body fat"><br>
+    <input type="number" id="weight_goal" placeholder="Enter goal weight">
+    <input type="number" id="BF_goal" placeholder="Enter goal body fat"><br>
     <button onclick="calculate()">Calculate</button>
     <h2 id="cut"></h2>
     <h2 id="bulk"></h2>
     <script>
         function calculate() {
-            const Wc = parseFloat(document.getElementById('Wc').value);
-            const BFc = parseFloat(document.getElementById('BFc').value);
-            const Wg = parseFloat(document.getElementById('Wg').value);
-            const BFg = parseFloat(document.getElementById('BFg').value);
+            var weight_current = parseFloat(document.getElementById('weight_current').value);
+            var BF_current = 0.01 * parseFloat(document.getElementById('BF_current').value);
+            var weight_goal = parseFloat(document.getElementById('weight_goal').value);
+            var BF_goal = 0.01 * parseFloat(document.getElementById('BF_goal').value);
 
-            const Lc = Wc * (1 - BFc);
-            const Fc = Wc * BFc;
-            const Lg = Wg * (1 - BFg);
-            const Fg = Wg * BFg;
+            var lean_current = weight_current * (1 - BF_current);
+            var fat_current = weight_current * BF_current;
+            var lean_goal = weight_goal * (1 - BF_goal);
+            var fat_goal = weight_goal * BF_goal;
 
-            const Mb = 0.4;
-            const Mc = -0.1;
-            const Fb = 0.2;
-            const Fc = -1;
+            var rate_bulk = 0.4;
+            var rate_cut = -1;
+            var fat_bulk = 0.2;
+            var fat_cut = -0.9;
+			var muscle_bulk = rate_bulk - fat_bulk;
+			var muscle_cut = rate_cut - fat_cut;
 
-            var det = Mb * Fc - Mc * Fb;
-            var Dl = Lc - Lg;
-            var Df = Fc - Fg;
-
-            if (det != 0) {
-                var cut = (Dl * Fc - Df * Mc) / det;
-                var bulk = (Mb * Df - Fb * Dl) / det;
-                document.getElementById('cut').textContent = `Cut: ${cut}`;
-                document.getElementById('bulk').textContent = `Bulk: ${bulk}`;
-            }
+            var det = muscle_bulk * fat_cut - muscle_cut * fat_bulk;
+            var lean_diff = lean_goal - lean_current ;
+            var fat_diff = fat_goal - fat_current;
+			
+			var bulk;
+			var cut;
+			
+			if (lean_diff < 0) {
+				bulk = 0;
+				cut = fat_diff / rate_cut;
+			} else if (fat_diff > 0) {
+				cut = 0;
+				bulk = lean_diff / rate_bulk;
+			} else if (det != 0) {
+                bulk = (lean_diff * fat_cut - fat_diff * muscle_cut) / det;
+                cut = (fat_diff * muscle_bulk - lean_diff * fat_bulk) / det;
+            } else {
+				bulk = 0;
+				cut = 0;
+			}
+			
+			document.getElementById('cut').textContent = `Cut: ${Math.round(cut)}`;
+            document.getElementById('bulk').textContent = `Bulk: ${Math.round(bulk)}`;
             
             //if (!isNaN(num1) && !isNaN(num2)) {
             //    document.getElementById('result').textContent = `Sum: ${num1 + num2}`;
