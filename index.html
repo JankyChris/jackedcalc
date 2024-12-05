@@ -10,20 +10,47 @@
     </style>
 </head>
 <body>
-    <h1>Simple Calculator</h1>
-    <input type="number" id="num1" placeholder="Enter first number">
-    <input type="number" id="num2" placeholder="Enter second number"><br>
+    <h1>Jacked Calculator</h1>
+    <input type="number" id="Wc" placeholder="Enter current weight">
+    <input type="number" id="BFc" placeholder="Enter current body fat"><br>
+    <input type="number" id="Wg" placeholder="Enter goal weight">
+    <input type="number" id="BFg" placeholder="Enter goal body fat"><br>
     <button onclick="calculate()">Calculate</button>
-    <h2 id="result"></h2>
+    <h2 id="cut"></h2>
+    <h2 id="bulk"></h2>
     <script>
         function calculate() {
-            const num1 = parseFloat(document.getElementById('num1').value);
-            const num2 = parseFloat(document.getElementById('num2').value);
-            if (!isNaN(num1) && !isNaN(num2)) {
-                document.getElementById('result').textContent = `Sum: ${num1 + num2}`;
-            } else {
-                document.getElementById('result').textContent = 'Please enter valid numbers.';
+            const Wc = parseFloat(document.getElementById('Wc').value);
+            const BFc = parseFloat(document.getElementById('BFc').value);
+            const Wg = parseFloat(document.getElementById('Wg').value);
+            const BFg = parseFloat(document.getElementById('BFg').value);
+
+            const Lc = Wc * (1 - BFc);
+            const Fc = Wc * BFc;
+            const Lg = Wg * (1 - BFg);
+            const Fg = Wg * BFg;
+
+            const Mb = 0.4;
+            const Mc = -0.1;
+            const Fb = 0.2;
+            const Fc = -1;
+
+            var det = Mb * Fc - Mc * Fb;
+            var Dl = Lc - Lg;
+            var Df = Fc - Fg;
+
+            if (det != 0) {
+                var cut = (Dl * Fc - Df * Mc) / det;
+                var bulk = (Mb * Df - Fb * Dl) / det;
+                document.getElementById('cut').textContent = `Cut: ${cut}`;
+                document.getElementById('bulk').textContent = `Bulk: ${bulk}`;
             }
+            
+            //if (!isNaN(num1) && !isNaN(num2)) {
+            //    document.getElementById('result').textContent = `Sum: ${num1 + num2}`;
+            //} else {
+            //    document.getElementById('result').textContent = 'Please enter valid numbers.';
+            //}
         }
     </script>
 </body>
