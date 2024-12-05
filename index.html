@@ -4,68 +4,187 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jacked Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-        input, button { margin: 5px; padding: 10px; font-size: 1rem; }
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh;  
+            color: #333; 
+			background-color: #b4b4b4;
+			opacity: 1;
+        }
+        .container {
+            background: white; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); 
+            padding: 20px 30px; 
+            text-align: center; 
+            width: 100%; 
+            max-width: 500px; 
+        }
+		.form-group {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin: 10px 0; 
+        }
+        h1 { 
+            font-size: 2rem; 
+            margin-bottom: 20px; 
+            color: #6a89cc; 
+        }
+        input {
+            width: calc(50% - 12px); 
+            margin: 5px; 
+            padding: 10px; 
+            font-size: 1rem; 
+            border: 1px solid #ccc; 
+            border-radius: 5px; 
+        }
+        button {
+            background: #6a89cc; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            padding: 10px 20px; 
+            font-size: 1rem; 
+            cursor: pointer; 
+            margin-top: 10px;
+        }
+        button:hover { 
+            background: #4a69bd; 
+        }
+        h2 { 
+            margin-top: 15px; 
+            font-size: 1.2rem; 
+        }
+        .advanced-settings {
+            display: none; 
+            margin-top: 15px; 
+            text-align: left; 
+            background: #f4f4f4; 
+            padding: 10px; 
+            border-radius: 5px; 
+            border: 1px solid #ccc;
+        }
+        .toggle-btn {
+            font-size: 0.9rem; 
+            color: #6a89cc; 
+            background: none; 
+            border: none; 
+            cursor: pointer; 
+            margin-top: 10px;
+        }
+        .toggle-btn:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
-    <h1>Jacked Calculator</h1>
-    <input type="number" id="weight_current" placeholder="Enter current weight">
-    <input type="number" id="BF_current" placeholder="Enter current body fat"><br>
-    <input type="number" id="weight_goal" placeholder="Enter goal weight">
-    <input type="number" id="BF_goal" placeholder="Enter goal body fat"><br>
-    <button onclick="calculate()">Calculate</button>
-    <h2 id="cut"></h2>
-    <h2 id="bulk"></h2>
+    <div class="container">
+        <h1>Jacked Calculator</h1>
+        <div class="form-group">
+            <label for="weight_current">Current weight:</label>
+            <input type="number" id="weight_current" placeholder="kg">
+        </div>
+        <div class="form-group">
+            <label for="BF_current">Current body fat:</label>
+            <input type="number" id="BF_current" placeholder="%">
+        </div>
+        <div class="form-group">
+            <label for="weight_goal">Goal weight:</label>
+            <input type="number" id="weight_goal" placeholder="kg">
+        </div>
+        <div class="form-group">
+            <label for="BF_goal">Goal body fat:</label>
+            <input type="number" id="BF_goal" placeholder="%">
+        </div>
+		
+        <button onclick="calculate()">Calculate</button>
+		
+        <h2 id="cut"></h2>
+        <h2 id="bulk"></h2>
+		
+		<button class="toggle-btn" onclick="toggleAdvancedSettings()">Show Advanced Settings</button>
+        <div class="advanced-settings" id="advancedSettings">
+            <div class="form-group">
+                <label for="rate_cut">Weight loss during cut:</label>
+                <input type="number" id="rate_cut" value="-1" step="0.1">
+            </div>
+			<div class="form-group">
+                <label for="fat_cut">Of which is fat loss::</label>
+                <input type="number" id="fat_cut" value="-0.9" step="0.1">
+            </div>
+			<div class="form-group">
+                <label for="rate_bulk">Weight gain during bulk:</label>
+                <input type="number" id="rate_bulk" value="0.4" step="0.1">
+            </div>
+            <div class="form-group">
+                <label for="fat_bulk">Of which is fat gain:</label>
+                <input type="number" id="fat_bulk" value="0.2" step="0.1">
+            </div>
+        </div>
+    </div>
     <script>
+		function toggleAdvancedSettings() {
+            const settings = document.getElementById('advancedSettings');
+            const btn = document.querySelector('.toggle-btn');
+            if (settings.style.display === 'none' || settings.style.display === '') {
+                settings.style.display = 'block';
+                btn.textContent = 'Hide Advanced Settings';
+            } else {
+                settings.style.display = 'none';
+                btn.textContent = 'Show Advanced Settings';
+            }
+        }
+		
         function calculate() {
             var weight_current = parseFloat(document.getElementById('weight_current').value);
             var BF_current = 0.01 * parseFloat(document.getElementById('BF_current').value);
             var weight_goal = parseFloat(document.getElementById('weight_goal').value);
             var BF_goal = 0.01 * parseFloat(document.getElementById('BF_goal').value);
 
+            var rate_bulk = parseFloat(document.getElementById('rate_bulk').value);
+            var rate_cut = parseFloat(document.getElementById('rate_cut').value);
+            var fat_bulk = parseFloat(document.getElementById('fat_bulk').value);
+            var fat_cut = parseFloat(document.getElementById('fat_cut').value);
+
             var lean_current = weight_current * (1 - BF_current);
             var fat_current = weight_current * BF_current;
             var lean_goal = weight_goal * (1 - BF_goal);
             var fat_goal = weight_goal * BF_goal;
 
-            var rate_bulk = 0.4;
-            var rate_cut = -1;
-            var fat_bulk = 0.2;
-            var fat_cut = -0.9;
-			var muscle_bulk = rate_bulk - fat_bulk;
-			var muscle_cut = rate_cut - fat_cut;
+            var muscle_bulk = rate_bulk - fat_bulk;
+            var muscle_cut = rate_cut - fat_cut;
 
             var det = muscle_bulk * fat_cut - muscle_cut * fat_bulk;
-            var lean_diff = lean_goal - lean_current ;
+            var lean_diff = lean_goal - lean_current;
             var fat_diff = fat_goal - fat_current;
-			
-			var bulk;
-			var cut;
-			
-			if (lean_diff < 0) {
-				bulk = 0;
-				cut = fat_diff / rate_cut;
-			} else if (fat_diff > 0) {
-				cut = 0;
-				bulk = lean_diff / rate_bulk;
-			} else if (det != 0) {
+
+            var bulk;
+            var cut;
+
+            if (lean_diff < 0) {
+                bulk = 0;
+                cut = fat_diff / rate_cut;
+            } else if (fat_diff > 0) {
+                cut = 0;
+                bulk = lean_diff / rate_bulk;
+            } else if (det != 0) {
                 bulk = (lean_diff * fat_cut - fat_diff * muscle_cut) / det;
                 cut = (fat_diff * muscle_bulk - lean_diff * fat_bulk) / det;
             } else {
-				bulk = 0;
-				cut = 0;
-			}
-			
-			document.getElementById('cut').textContent = `Cut: ${Math.round(cut)}`;
-            document.getElementById('bulk').textContent = `Bulk: ${Math.round(bulk)}`;
-            
-            //if (!isNaN(num1) && !isNaN(num2)) {
-            //    document.getElementById('result').textContent = `Sum: ${num1 + num2}`;
-            //} else {
-            //    document.getElementById('result').textContent = 'Please enter valid numbers.';
-            //}
+                bulk = 0;
+                cut = 0;
+            }
+
+            document.getElementById('cut').textContent = `Cutting weeks: ${Math.round(cut)}`;
+            document.getElementById('bulk').textContent = `Bulking weeks: ${Math.round(bulk)}`;
         }
     </script>
 </body>
